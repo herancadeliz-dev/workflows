@@ -1,7 +1,15 @@
 const puppeteer = require('puppeteer');
-const { Resend } = require('resend');
+const nodemailer = require('nodemailer');
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lista de destinatários
+const listaEmails = [
+  'franco.daffos@mercadolivre.com',
+  'luciano.jaqueira@mercadolivre.com',
+  'robson.hribeiro@mercadolivre.com',
+  'sabrina.macedo@mercadolivre.com',
+  'ignacio.anavalon@mercadolibre.cl',
+  'renan.tisiani@mercadolivre.com'
+];
 
 async function run() {
   console.log('Iniciando captura do relatório...');
@@ -13,34 +21,51 @@ async function run() {
   const page = await browser.newPage();
   await page.setViewport({ width: 1280, height: 1024 });
 
-  // Substitua pela URL exata onde seu HTML está hospedado (ex: Netlify)
+  // Abre o relatório
   await page.goto('https://cargoops.netlify.app', { waitUntil: 'networkidle2' });
   await new Promise(r => setTimeout(r, 5000));
 
   const imageBuffer = await page.screenshot({ fullPage: true });
   await browser.close();
 
-  console.log('Print capturado. Enviando e-mail via Resend...');
+  console.log('Print capturado. Configurando envio pelo Gmail...');
 
-  const data = await resend.emails.send({
-    from: 'onboarding@resend.dev', // Use este remetente padrão se não configurou domínio próprio
-    to: ['luciano.jaqueira@mercadolivre.com'], // Insira os e-mails de destino aqui
-    subject: `CargoOps — Estoque  (${new Date().toLocaleDateString('pt-BR')})`,
+  // Configuração do servidor de e-mail do Gmail
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.GMAIL_USER,
+      pass: process.env.GMAIL_PASS,
+    },
+  });
+
+  const dataAtual = new Date().toLocaleDateString('pt-BR');
+
+  // Envio do e-mail para toda a lista
+  const info = await transporter.sendMail({
+    from: `"CargoOps Relatórios" <${process.env.GMAIL_USER}>`,
+    to: listaEmails.join(', '),
+    subject: `CargoOps — Relatório Operacional GRU (${dataAtual})`,
     html: `
-      <h2>Relatório Estoque CargoOps </h2>
-      <p>Segue abaixo o print atualizado do estoque.</p>
-      <img src="cid:screenshot" style="max-width: 100%; border: 1px solid #ccc; border-radius: 8px;" />
+      <div style="font-family: Arial, sans-serif; color: #333;">
+        <h2>Relatório Operacional CargoOps GRU</h2>
+        <p>Segue abaixo o status atualizado do estoque em GRU tirado automaticamente.</p>
+        <div style="margin-top: 15px;">
+          <img src="cid:screenshot" style="max-width: 100%; border: 1px solid #E5E7EB; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" />
+        </div>
+        <p style="font-size: 11px; color: #777; margin-top: 20px;">Enviado automaticamente via CargoOps System.</p>
+      </div>
     `,
     attachments: [
       {
-        filename: 'relatorio.png',
+        filename: `relatorio_gru_${dataAtual}.png`,
         content: imageBuffer,
-        cid: 'screenshot',
+        cid: 'screenshot', // Exibe a imagem dentro do corpo do e-mail
       },
     ],
   });
 
-  console.log('E-mail enviado com sucesso:', data);
+  console.log('E-mail enviado com sucesso para toda a lista! ID:', info.messageId);
 }
 
 run().catch(console.error);
