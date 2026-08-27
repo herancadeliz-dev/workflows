@@ -1,0 +1,27 @@
+name: Enviar Relatorio CargoOps
+
+on:
+  schedule:
+    # Horário em UTC (08h Brasília = 11:00 UTC | 18h Brasília = 21:00 UTC)
+    - cron: '0 11 * * *'
+    - cron: '0 21 * * *'
+  workflow_dispatch: # Permite rodar manualmente para testar
+
+jobs:
+  report:
+    runs-runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Instalar dependências
+        run: npm install puppeteer resend
+
+      - name: Executar script de envio
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: node send_report.js
