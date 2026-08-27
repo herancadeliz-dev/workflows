@@ -24,10 +24,10 @@ async function run() {
 
   const data = await resend.emails.send({
     from: 'onboarding@resend.dev', // Use este remetente padrão se não configurou domínio próprio
-    to: ['SEU_EMAIL_AQUI@dominio.com'], // Insira os e-mails de destino aqui
-    subject: `CargoOps — Relatório Operacional GRU (${new Date().toLocaleDateString('pt-BR')})`,
+    to: ['luciano.jaqueira@mercadolivre.com'], // Insira os e-mails de destino aqui
+    subject: `CargoOps — Estoque  (${new Date().toLocaleDateString('pt-BR')})`,
     html: `
-      <h2>Relatório Operacional CargoOps GRU</h2>
+      <h2>Relatório Estoque CargoOps </h2>
       <p>Segue abaixo o print atualizado do estoque.</p>
       <img src="cid:screenshot" style="max-width: 100%; border: 1px solid #ccc; border-radius: 8px;" />
     `,
