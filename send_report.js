@@ -20,7 +20,7 @@ async function run() {
   await page.setViewport({ width: 1280, height: 1024 });
 
   console.log('Acessando o sistema CargoOps...');
-  await page.goto('https://cargoops.netlify.app', { waitUntil: 'networkidle2' });
+  await page.goto('https://reportestoque.netlify.app', { waitUntil: 'networkidle2' });
 
   // Aguarda 4 segundos para a primeira carga do Firebase
   await new Promise(r => setTimeout(r, 4000));
