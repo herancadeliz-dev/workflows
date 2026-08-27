@@ -3,8 +3,12 @@ const nodemailer = require('nodemailer');
 
 // Lista de e-mails da equipe
 const listaEmails = [
+  'franco.daffos@mercadolivre.com',
   'luciano.jaqueira@mercadolivre.com',
-  
+  'robson.hribeiro@mercadolivre.com',
+  'sabrina.macedo@mercadolivre.com',
+  'ignacio.anavalon@mercadolibre.cl',
+  'renan.tisiani@mercadolivre.com'
 ];
 
 async function run() {
