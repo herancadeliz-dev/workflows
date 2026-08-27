@@ -1,36 +1,52 @@
 const puppeteer = require('puppeteer');
 const nodemailer = require('nodemailer');
 
-// Lista de destinatários
+// Lista de e-mails da equipe
 const listaEmails = [
-  'franco.daffos@mercadolivre.com',
   'luciano.jaqueira@mercadolivre.com',
-  'robson.hribeiro@mercadolivre.com',
-  'sabrina.macedo@mercadolivre.com',
-  'ignacio.anavalon@mercadolibre.cl',
-  'renan.tisiani@mercadolivre.com'
+  
 ];
 
 async function run() {
-  console.log('Iniciando captura do relatório...');
+  console.log('Iniciando o navegador invisível...');
   
   const browser = await puppeteer.launch({ 
     headless: 'new',
     args: ['--no-sandbox', '--disable-setuid-sandbox'] 
   });
   const page = await browser.newPage();
+  
+  // Define o tamanho da tela para capturar todo o relatório
   await page.setViewport({ width: 1280, height: 1024 });
 
-  // Abre o relatório
+  console.log('Acessando o sistema CargoOps...');
   await page.goto('https://cargoops.netlify.app', { waitUntil: 'networkidle2' });
+
+  // Aguarda 4 segundos para a primeira carga do Firebase
+  await new Promise(r => setTimeout(r, 4000));
+
+  console.log('Acionando o botão Gerar snapshot...');
+  await page.evaluate(() => {
+    // Localiza e clica no botão "Gerar snapshot" no topo da página
+    const botoes = Array.from(document.querySelectorAll('button'));
+    const btnSnapshot = botoes.find(b => 
+      b.textContent.includes('Gerar snapshot') || 
+      b.getAttribute('onclick')?.includes('tirarSnapshot')
+    );
+    if (btnSnapshot) {
+      btnSnapshot.click();
+    }
+  });
+
+  // Aguarda 5 segundos para o Firebase atualizar e desenhar as tabelas na tela
+  console.log('Aguardando processamento e atualização das tabelas...');
   await new Promise(r => setTimeout(r, 5000));
 
+  console.log('Capturando imagem da tela...');
   const imageBuffer = await page.screenshot({ fullPage: true });
   await browser.close();
 
-  console.log('Print capturado. Configurando envio pelo Gmail...');
-
-  // Configuração do servidor de e-mail do Gmail
+  console.log('Autenticando no Gmail e enviando mensagem...');
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -41,7 +57,6 @@ async function run() {
 
   const dataAtual = new Date().toLocaleDateString('pt-BR');
 
-  // Envio do e-mail para toda a lista
   const info = await transporter.sendMail({
     from: `"CargoOps Relatórios" <${process.env.GMAIL_USER}>`,
     to: listaEmails.join(', '),
@@ -60,12 +75,12 @@ async function run() {
       {
         filename: `relatorio_gru_${dataAtual}.png`,
         content: imageBuffer,
-        cid: 'screenshot', // Exibe a imagem dentro do corpo do e-mail
+        cid: 'screenshot',
       },
     ],
   });
 
-  console.log('E-mail enviado com sucesso para toda a lista! ID:', info.messageId);
+  console.log('E-mail enviado com sucesso! ID da mensagem:', info.messageId);
 }
 
 run().catch(console.error);
