@@ -2,8 +2,10 @@ name: Enviar Relatorio CargoOps
 
 on:
   schedule:
-    - cron: '0 11 * * *'
-    - cron: '0 21 * * *'
+    # 08:03 no Brasil (11:03 UTC)
+    - cron: '3 11 * * *'
+    # 18:05 no Brasil (21:05 UTC)
+    - cron: '5 21 * * *'
   workflow_dispatch:
 
 jobs:
