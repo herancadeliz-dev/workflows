@@ -18,9 +18,10 @@ jobs:
           node-version: '18'
 
       - name: Instalar dependencias
-        run: npm install puppeteer resend
+        run: npm install puppeteer nodemailer
 
       - name: Executar script de envio
         env:
-          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_PASS: ${{ secrets.GMAIL_PASS }}
         run: node send_report.js
