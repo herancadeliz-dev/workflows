@@ -8,6 +8,8 @@ const listaEmails = [
   'robson.hribeiro@mercadolivre.com',
   'sabrina.macedo@mercadolivre.com',
   'ignacio.anavalon@mercadolibre.cl',
+  'victor.mimura@mercadolivre.com',
+  'tatiane.rangel@mercadolivre.com',
   'renan.tisiani@mercadolivre.com'
 ];
 
