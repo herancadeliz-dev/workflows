@@ -9,7 +9,7 @@ const listaEmails = [
   'sabrina.macedo@mercadolivre.com',
   'ignacio.anavalon@mercadolibre.cl',
   'victor.mimura@mercadolivre.com',
-  'tatiane.rangel@mercadolivre.com'
+  'tatiane.rangel@mercadolivre.com',
   'caio.macedo@mercadolivre.com',
   'marcela.pferreira@mercadolivre.com',
   'vinicius.caraujo@mercadolivre.com',
