@@ -18,13 +18,13 @@ const listaEmails = [
 
 async function run() {
   console.log('Iniciando o navegador invisível...');
-  
-  const browser = await puppeteer.launch({ 
+
+  const browser = await puppeteer.launch({
     headless: 'new',
-    args: ['--no-sandbox', '--disable-setuid-sandbox'] 
+    args: ['--no-sandbox', '--disable-setuid-sandbox']
   });
   const page = await browser.newPage();
-  
+
   // Define o tamanho da tela para capturar todo o relatório
   await page.setViewport({ width: 1280, height: 1024 });
 
@@ -38,8 +38,8 @@ async function run() {
   await page.evaluate(() => {
     // Localiza e clica no botão "Gerar snapshot" no topo da página
     const botoes = Array.from(document.querySelectorAll('button'));
-    const btnSnapshot = botoes.find(b => 
-      b.textContent.includes('Gerar snapshot') || 
+    const btnSnapshot = botoes.find(b =>
+      b.textContent.includes('Gerar snapshot') ||
       b.getAttribute('onclick')?.includes('tirarSnapshot')
     );
     if (btnSnapshot) {
@@ -92,4 +92,12 @@ async function run() {
   console.log('E-mail enviado com sucesso! ID da mensagem:', info.messageId);
 }
 
-run().catch(console.error);
+// IMPORTANTE: se run() falhar, o processo precisa terminar com exit code 1.
+// Sem isso, o GitHub Actions marca o workflow como bem-sucedido mesmo
+// quando o email não foi enviado (por falha no Puppeteer, autenticação
+// do Gmail, etc.), e o problema passa despercebido até alguém reclamar
+// que não recebeu o relatório.
+run().catch((err) => {
+  console.error('Falha ao gerar/enviar o relatório:', err);
+  process.exit(1);
+});
